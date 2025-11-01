@@ -12,7 +12,7 @@
 
 <br>
 
-Options and how to configure:
+Options and how to configure `config.yml`:
 
 <br>
 
@@ -152,3 +152,4 @@ Requires players to have `<command>.use` permission to use any plugin command
 ```yaml
 aggressive-mode: false
 ```
+
