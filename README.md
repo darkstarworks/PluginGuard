@@ -2,7 +2,7 @@
 
 #### Protect your server by hiding installed plugins from users
 
-<br>
+For Minecraft Paper 1.21.1 - 1.21.10
 
 <br>
 
@@ -152,4 +152,5 @@ Requires players to have `<command>.use` permission to use any plugin command
 ```yaml
 aggressive-mode: false
 ```
+
 
