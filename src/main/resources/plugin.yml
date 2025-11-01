@@ -1,8 +1,25 @@
 name: PluginGuard
 version: '0.1'
-main: io.github.darkstarworks.pluginGuard
+main: io.github.darkstarworks.PluginGuard
 api-version: '1.21'
+load: STARTUP
 prefix: PG »
-authors: [ darkstarworks ]
-description: Guard what goes on behind the curtains
+description: Lightweight plugin to hide installed plugins from users
+author: [ darkstarworks ]
 website: https://github.com/darkstarworks
+donate: https://ko-fi.com/darkstarworks
+
+commands:
+  pluginguard:
+    description: Reload PluginGuard configuration
+    usage: /pluginguard reload
+    aliases: [pg]
+    permission: pluginguard.reload
+
+permissions:
+  pluginguard.bypass:
+    description: Users with this permission bypass plugin hiding and see the real plugin list
+    default: op
+  pluginguard.reload:
+    description: Reloads the PluginGuard configuration
+    default: op
