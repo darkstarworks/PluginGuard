@@ -10,6 +10,22 @@ For Minecraft Paper 1.21.1 - 1.21.10
 
 <br>
 
+### PluginGuard features:
+- **Hide Mode**
+  - (choose from several types of "Access Denied" messages)
+- **Plugin Spoofing**
+  - (returns a configurable list of fake plugins)
+- **Optional Bypass permission**
+- **High-level bypass protection**
+- **Command Redirection**
+- **Advanced Protection**
+- **Custom Protection**
+- **Server MetaData Protection**
+- **Optional Server Brand Spoofing**
+  - (returns e.g. "Vanilla" instead of "Paper". configurable)
+- **Optional Agressive Mode**
+  - (blocks all. read config below please)
+
 <br>
 
 Options and how to configure `config.yml`:
@@ -152,5 +168,6 @@ Requires players to have `<command>.use` permission to use any plugin command
 ```yaml
 aggressive-mode: false
 ```
+
 
 
