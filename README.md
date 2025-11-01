@@ -168,6 +168,3 @@ Requires players to have `<command>.use` permission to use any plugin command
 ```yaml
 aggressive-mode: false
 ```
-
-
-
