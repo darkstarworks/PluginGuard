@@ -1,0 +1,101 @@
+# PluginGuard Configuration - Comprehensive Plugin Protection
+# Protect your server by hiding installed plugins from users
+#
+# Author: darkstarworks | https://github.com/darkstarworks
+# Donate: https://ko-fi.com/darkstarworks
+#
+# ===== BASIC SETTINGS =====
+#
+# Hide Mode Options:
+# - "unknown-command": Shows "Unknown command" message (most realistic)
+# - "empty": Shows "Plugins (0):"
+# - "fake-list": Shows configured fake plugins below
+# - "permission-denied": Shows permission error message
+hide-mode: "unknown-command"
+
+# Fake plugins to display when hide-mode is "fake-list"
+# Use vanilla-sounding names to appear legitimate
+fake-plugins:
+  - "ServerCore"
+  - "WorldManager"
+  - "CoreProtect"
+  - "EveryoneChat"
+
+# Permission node to bypass all plugin hiding (staff/admin only)
+bypass-permission: "pluginguard.bypass"
+
+# ===== COMMAND PROTECTION =====
+
+# Commands to intercept and hide (supports bukkit: and minecraft: prefixes)
+protected-commands:
+  - "pl"
+  - "plugins"
+  - "ver"
+  - "version"
+  - "?"
+  - "help"
+  - "about"
+  - "icanhasbukkit"
+
+# Block all bukkit: and minecraft: prefixed commands (prevents probing)
+block-bukkit-commands: true
+
+# Redirect bukkit: commands to show spoofed list instead of blocking
+# Only works if block-bukkit-commands is true
+redirect-bukkit-commands: false
+
+# ===== TAB COMPLETION PROTECTION =====
+
+# Remove plugin commands from tab-completion suggestions
+# Prevents discovery through /[tab] probing
+hide-tab-completion: true
+
+# ===== ADVANCED PROTECTION =====
+
+# Block unknown commands with permission errors
+# Returns "Unknown command" even if the player lacks permission
+# Prevents probing for plugin existence via permission responses
+block-unknown-commands: true
+
+# Common plugin commands to block (case-insensitive)
+# Add popular plugin commands that users might probe for
+common-plugin-commands:
+  - "essentials"
+  - "ess"
+  - "worldedit"
+  - "we"
+  - "luckperms"
+  - "lp"
+  - "coreprotect"
+  - "co"
+  - "vault"
+  - "multiverse"
+  - "mv"
+  - "citizens"
+  - "npc"
+  - "clearlag"
+  - "dynmap"
+  - "griefprevention"
+  - "gp"
+  - "holographicdisplays"
+  - "hd"
+
+# Block common plugin commands from the list above
+block-common-plugin-commands: true
+
+# ===== SERVER METADATA PROTECTION =====
+
+# Hide server software in query responses and MOTD ping
+# Prevents protocol-level discovery
+hide-server-brand: true
+
+# Fake server brand to display (e.g., "vanilla", "1.21.1", "custom")
+fake-server-brand: "vanilla"
+
+# ===== AGGRESSIVE MODE =====
+
+# AGGRESSIVE MODE: Block ALL plugin commands for players without explicit permission
+# WARNING: This will hide even beneficial plugin commands for regular players
+# Use only if you want maximum security and manually grant command permissions
+# Requires players to have "<command>.use" permission to use any plugin command
+aggressive-mode: false

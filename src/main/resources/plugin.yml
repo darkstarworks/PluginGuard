@@ -1,0 +1,8 @@
+name: PluginGuard
+version: '0.1'
+main: io.github.darkstarworks.pluginGuard
+api-version: '1.21'
+prefix: PG »
+authors: [ darkstarworks ]
+description: Guard what goes on behind the curtains
+website: https://github.com/darkstarworks
