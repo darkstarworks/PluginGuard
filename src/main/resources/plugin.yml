@@ -1,13 +1,14 @@
 name: PluginGuard
-version: '0.1'
+version: '${version}'
 main: io.github.darkstarworks.PluginGuard
 api-version: '1.21'
 load: STARTUP
 prefix: PG »
+folia-supported: true
 description: Lightweight plugin to hide installed plugins from users
-author: [ darkstarworks ]
-website: https://github.com/darkstarworks
-donate: https://ko-fi.com/darkstarworks
+author: darkstarworks
+authors: [ darkstarworks ]
+website: https://github.com/darkstarworks/PluginGuard
 
 commands:
   pluginguard:

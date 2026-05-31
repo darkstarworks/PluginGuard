@@ -1,6 +1,7 @@
 package io.github.darkstarworks
 
-import com.destroystokyo.paper.event.server.PaperServerListPingEvent
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -31,8 +32,23 @@ class PluginGuard : JavaPlugin(), Listener {
         saveDefaultConfig()
         loadConfiguration()
         server.pluginManager.registerEvents(this, this)
+        registerPaperListeners()
         logger.info("PluginGuard enabled - protecting ${server.pluginManager.plugins.size} plugins")
     }
+
+    private fun registerPaperListeners() {
+        // PaperServerListPingEvent only exists on Paper and its forks. Probe via reflection so
+        // the plugin still loads on Spigot/Bukkit (server brand spoofing simply won't apply).
+        try {
+            Class.forName("com.destroystokyo.paper.event.server.PaperServerListPingEvent")
+            server.pluginManager.registerEvents(PingListener(this), this)
+        } catch (_: ClassNotFoundException) {
+            logger.warning("PaperServerListPingEvent unavailable - server-brand spoofing disabled (Paper or a Paper fork required)")
+        }
+    }
+
+    fun shouldHideServerBrand(): Boolean = hideServerBrand
+    fun fakeBrand(): String = fakeServerBrand
 
     private fun loadConfiguration() {
         reloadConfig()
@@ -110,13 +126,6 @@ class PluginGuard : JavaPlugin(), Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOW)
-    fun onServerListPing(event: PaperServerListPingEvent) {
-        if (!hideServerBrand) return
-        event.protocolVersion = event.client.protocolVersion
-        event.version = fakeServerBrand
-    }
-
     private fun handleProtectedCommand(player: Player, command: String) {
         when (command) {
             "plugins", "pl" -> handlePluginsCommand(player)
@@ -130,20 +139,30 @@ class PluginGuard : JavaPlugin(), Listener {
     private fun handlePluginsCommand(player: Player) {
         when (hideMode) {
             "unknown-command" -> sendUnknownCommand(player)
-            "empty" -> player.sendMessage("§fPlugins (0):")
+            "empty" -> player.sendMessage(Component.text("Plugins (0):", NamedTextColor.WHITE))
             "fake-list" -> {
                 val plugins = fakePlugins.ifEmpty { listOf("ServerCore", "WorldManager") }
-                player.sendMessage("§fPlugins (${plugins.size}): §a${plugins.joinToString(", ")}")
+                player.sendMessage(
+                    Component.text("Plugins (${plugins.size}): ", NamedTextColor.WHITE)
+                        .append(Component.text(plugins.joinToString(", "), NamedTextColor.GREEN))
+                )
             }
-            "permission-denied" -> player.sendMessage("§cI'm sorry, but you do not have permission to perform this command.")
+            "permission-denied" -> player.sendMessage(
+                Component.text("I'm sorry, but you do not have permission to perform this command.", NamedTextColor.RED)
+            )
         }
     }
 
     private fun handleVersionCommand(player: Player) {
         when (hideMode) {
             "unknown-command" -> sendUnknownCommand(player)
-            "fake-list" -> player.sendMessage("§fThis server is running §aPaper§f version §agit-Paper-\"$fakeServerBrand\" (MC: 1.21.1)")
-            else -> player.sendMessage("§cThis command has been disabled.")
+            "fake-list" -> player.sendMessage(
+                Component.text("This server is running ", NamedTextColor.WHITE)
+                    .append(Component.text("Paper", NamedTextColor.GREEN))
+                    .append(Component.text(" version ", NamedTextColor.WHITE))
+                    .append(Component.text("git-Paper-\"$fakeServerBrand\" (MC: ${server.minecraftVersion})", NamedTextColor.GREEN))
+            )
+            else -> player.sendMessage(Component.text("This command has been disabled.", NamedTextColor.RED))
         }
     }
 
@@ -151,51 +170,61 @@ class PluginGuard : JavaPlugin(), Listener {
         if (hideMode == "unknown-command") {
             sendUnknownCommand(player)
         } else {
-            player.sendMessage("§6--------- §fHelp: Index §6---------")
-            player.sendMessage("§7Use /help [n] to get page n of help.")
+            player.sendMessage(Component.text("--------- Help: Index ---------", NamedTextColor.GOLD))
+            player.sendMessage(Component.text("Use /help [n] to get page n of help.", NamedTextColor.GRAY))
         }
     }
 
     private fun handleICanHasBukkitCommand(player: Player) {
         when (hideMode) {
             "unknown-command" -> sendUnknownCommand(player)
-            else -> player.sendMessage("§fThis server is not running Bukkit!")
+            else -> player.sendMessage(Component.text("This server is not running Bukkit!", NamedTextColor.WHITE))
         }
     }
 
     private fun sendUnknownCommand(player: Player) {
-        player.sendMessage("§cUnknown command. Type \"/help\" for help.")
+        player.sendMessage(Component.text("Unknown command. Type \"/help\" for help.", NamedTextColor.RED))
     }
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
         if (!command.name.equals("pluginguard", ignoreCase = true)) return false
 
         if (!sender.hasPermission("pluginguard.reload")) {
-            sender.sendMessage("§cYou don't have permission to use this command.")
+            sender.sendMessage(Component.text("You don't have permission to use this command.", NamedTextColor.RED))
             return true
         }
 
         if (args.isEmpty()) {
-            sender.sendMessage("§6PluginGuard Commands:")
-            sender.sendMessage("§e/pluginguard reload §7- Reload configuration")
-            sender.sendMessage("§e/pluginguard status §7- Show protection status")
+            sender.sendMessage(Component.text("PluginGuard Commands:", NamedTextColor.GOLD))
+            sender.sendMessage(
+                Component.text("/pluginguard reload ", NamedTextColor.YELLOW)
+                    .append(Component.text("- Reload configuration", NamedTextColor.GRAY))
+            )
+            sender.sendMessage(
+                Component.text("/pluginguard status ", NamedTextColor.YELLOW)
+                    .append(Component.text("- Show protection status", NamedTextColor.GRAY))
+            )
             return true
         }
 
         when (args[0].lowercase()) {
             "reload" -> {
                 loadConfiguration()
-                sender.sendMessage("§aPluginGuard configuration reloaded!")
+                sender.sendMessage(Component.text("PluginGuard configuration reloaded!", NamedTextColor.GREEN))
             }
             "status" -> {
-                sender.sendMessage("§6PluginGuard Status:")
-                sender.sendMessage("§7Protected Plugins: §f${server.pluginManager.plugins.size}")
-                sender.sendMessage("§7Hide Mode: §f$hideMode")
-                sender.sendMessage("§7Tab Completion: §f${if (hideTabCompletion) "Hidden" else "Visible"}")
-                sender.sendMessage("§7Server Brand: §f${if (hideServerBrand) fakeServerBrand else "Real"}")
-                sender.sendMessage("§7Aggressive Mode: §f${if (aggressiveMode) "Enabled" else "Disabled"}")
+                sender.sendMessage(Component.text("PluginGuard Status:", NamedTextColor.GOLD))
+                fun row(label: String, value: String) = sender.sendMessage(
+                    Component.text("$label: ", NamedTextColor.GRAY)
+                        .append(Component.text(value, NamedTextColor.WHITE))
+                )
+                row("Protected Plugins", "${server.pluginManager.plugins.size}")
+                row("Hide Mode", hideMode)
+                row("Tab Completion", if (hideTabCompletion) "Hidden" else "Visible")
+                row("Server Brand", if (hideServerBrand) fakeServerBrand else "Real")
+                row("Aggressive Mode", if (aggressiveMode) "Enabled" else "Disabled")
             }
-            else -> sender.sendMessage("§cUnknown subcommand. Use /pluginguard for help.")
+            else -> sender.sendMessage(Component.text("Unknown subcommand. Use /pluginguard for help.", NamedTextColor.RED))
         }
         return true
     }

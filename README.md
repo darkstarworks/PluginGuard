@@ -2,50 +2,43 @@
 
 #### Protect your server by hiding installed plugins from users
 
-For Minecraft Paper 1.21.1 - 1.21.10
-
-<br>
+For Minecraft Paper-based servers — supports **1.21.x** (Java 21+) and **26.x.x** (Java 25+).
+Works on Paper, Purpur, Pufferfish, Folia, and other Paper forks. Spigot/Bukkit will load
+the plugin but server-brand spoofing is disabled (Paper-only API).
 
 > Donate: https://ko-fi.com/darkstarworks
 
-<br>
+### Features
 
-### PluginGuard features:
-- **Hide Mode**
-  - (choose from several types of "Access Denied" messages)
-- **Plugin Spoofing**
-  - (returns a configurable list of fake plugins)
-- **Optional Bypass permission**
-- **High-level bypass protection**
+- **Hide Mode** — choose from several types of "Access Denied" responses
+- **Plugin Spoofing** — return a configurable list of fake plugins
+- **Optional Bypass Permission**
+- **High-level Bypass Protection**
 - **Command Redirection**
 - **Advanced Protection**
 - **Custom Protection**
-- **Server MetaData Protection**
-- **Optional Server Brand Spoofing**
-  - (returns e.g. "Vanilla" instead of "Paper". configurable)
-- **Optional Agressive Mode**
-  - (blocks all. read config below please)
+- **Server Metadata Protection**
+- **Optional Server Brand Spoofing** — return e.g. "Vanilla" instead of "Paper"
+- **Optional Aggressive Mode** — block everything; see config below
+- **Folia-compatible**
 
-<br>
+## Configuration (`config.yml`)
 
-Options and how to configure `config.yml`:
+### Basic settings
 
-<br>
+Hide Mode options:
+- `"unknown-command"` — shows "Unknown command" (most realistic)
+- `"empty"` — shows `Plugins (0):`
+- `"fake-list"` — shows the configured fake plugins below
+- `"permission-denied"` — shows a permission error
 
-#### ===== BASIC SETTINGS =====
-
-Hide Mode Options:
-- `"unknown-command"`: Shows "Unknown command" message (most realistic)
-- `"empty"`: Shows "Plugins (0):"
-- `"fake-list"`: Shows configured fake plugins below
-- `"permission-denied"`: Shows permission error message
 ```yaml
 hide-mode: "unknown-command"
 ```
-<br>
 
 Fake plugins to display when `hide-mode: "fake-list"`
-(Use vanilla-sounding names to appear legitimate)
+(use vanilla-sounding names to appear legitimate):
+
 ```yaml
 fake-plugins:
   - "ServerCore"
@@ -53,17 +46,17 @@ fake-plugins:
   - "CoreProtect"
   - "EveryoneChat"
 ```
-<br>
 
-Permission node to bypass all plugin hiding (staff/admin only)
+Permission node to bypass all plugin hiding (staff/admin only):
+
 ```yaml
 bypass-permission: "pluginguard.bypass"
 ```
-<br>
 
-#### ===== COMMAND PROTECTION =====
+### Command protection
 
-Commands to intercept and hide (supports bukkit: and minecraft: prefixes)
+Commands to intercept and hide (supports `bukkit:` and `minecraft:` prefixes):
+
 ```yaml
 protected-commands:
   - "pl"
@@ -75,42 +68,39 @@ protected-commands:
   - "about"
   - "icanhasbukkit"
 ```
-<br>
 
-Block all bukkit: and minecraft: prefixed commands (prevents probing)
+Block all `bukkit:` and `minecraft:` prefixed commands (prevents probing):
+
 ```yaml
 block-bukkit-commands: true
 ```
-<br>
 
-Redirect `bukkit:` commands to show spoofed list instead of blocking
-Only works if `block-bukkit-commands: true`
+Redirect `bukkit:` commands to the spoofed list instead of blocking
+(only works if `block-bukkit-commands: true`):
+
 ```yaml
 redirect-bukkit-commands: false
 ```
-<br>
 
-#### ===== TAB COMPLETION PROTECTION =====
+### Tab-completion protection
 
-Remove plugin commands from tab-completion suggestions
-Prevents discovery through `/[tab]` probing
+Remove plugin commands from tab-completion to prevent `/[tab]` probing:
+
 ```yaml
 hide-tab-completion: true
 ```
-<br>
 
-#### ===== ADVANCED PROTECTION =====
+### Advanced protection
 
-Block unknown commands with permission errors
-Returns "Unknown command" even if the player lacks permission
-Prevents probing for plugin existence via permission responses
+Return "Unknown command" even when the player simply lacks permission —
+prevents probing for plugin existence via permission responses:
+
 ```yaml
 block-unknown-commands: true
 ```
-<br>
 
-Common plugin commands to block (case-insensitive)
-Add popular plugin commands that users might probe for
+Common plugin commands to block (case-insensitive):
+
 ```yaml
 common-plugin-commands:
   - "essentials"
@@ -133,38 +123,39 @@ common-plugin-commands:
   - "holographicdisplays"
   - "hd"
 ```
-<br>
 
-Block common plugin commands from the list above
 ```yaml
 block-common-plugin-commands: true
 ```
-<br>
 
-#### ===== SERVER METADATA PROTECTION =====
+### Server-metadata protection
 
-Hide server software in query responses and MOTD ping
-Prevents protocol-level discovery
+Hide server software in query responses and MOTD ping (Paper/Folia only):
+
 ```yaml
 hide-server-brand: true
-```
-<br>
-
-Fake server brand to display (e.g., "vanilla", "1.21.1", "custom")
-```yaml
 fake-server-brand: "vanilla"
 ```
-<br>
 
-#### ===== AGGRESSIVE MODE =====
+### Aggressive mode
 
-**AGGRESSIVE MODE: Block ALL plugin commands for players without explicit permission**
+Blocks **all** plugin commands for players without `<command>.use` permission.
+This will hide even beneficial plugin commands for regular players — use only if
+you want maximum security and are willing to manually grant per-command permissions.
 
-**WARNING**: This will hide even beneficial plugin commands for regular players.
-
-Use <ins>only</ins> if you want maximum security and manually grant command permissions
-
-Requires players to have `<command>.use` permission to use any plugin command
 ```yaml
 aggressive-mode: false
 ```
+
+## Commands
+
+- `/pluginguard reload` — reload config (requires `pluginguard.reload`)
+- `/pluginguard status` — show current protection status
+
+## Building
+
+```
+./gradlew build
+```
+
+The shaded jar lands in `build/libs/PluginGuard-<version>.jar`.
